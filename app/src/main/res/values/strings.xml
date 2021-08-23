@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">taskmaster</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="task_title">Task Title</string>
+    <string name="radio_team1">1</string>
+    <string name="radio_team2">2</string>
+    <string name="radio_team3">3</string>
+    <string name="choose_a_team">Choose a Team</string>
+</resources>
