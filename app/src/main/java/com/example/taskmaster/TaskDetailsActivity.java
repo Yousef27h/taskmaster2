@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 public class TaskDetailsActivity extends AppCompatActivity {
