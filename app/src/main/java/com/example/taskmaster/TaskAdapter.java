@@ -11,14 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.amplifyframework.datastore.generated.model.Task;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
-    private OnTaskListener listener;
-    private List<Task> tasks;
+    private final OnTaskListener listener;
+    private final List<Task> tasks;
 
     public TaskAdapter( List<Task> tasks, OnTaskListener listener) {
         this.listener = listener;
@@ -40,11 +38,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String title = tasks.get(position).getTitle();
-//        String description = tasks.get(position).getBody();
-//        String state = tasks.get(position).getState();
 
         holder.taskTitle.setText(title);
-//        holder.taskState.setText(state);
     }
 
     @Override
@@ -53,29 +48,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
-        private TextView taskTitle;
-        private TextView taskState;
-        private Button deleteBtn;
+        private final TextView taskTitle;
 
         public ViewHolder(@NonNull View itemView, OnTaskListener listener) {
             super(itemView);
             taskTitle = itemView.findViewById(R.id.titleTask);
-//            taskState = itemView.findViewById(R.id.stateTask);
-            deleteBtn = itemView.findViewById(R.id.deleteBtn);
+            Button deleteBtn = itemView.findViewById(R.id.deleteBtn);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                        listener.onItemClick(getAdapterPosition());
-                }
-            });
+            itemView.setOnClickListener(view -> listener.onItemClick(getAdapterPosition()));
 
-            deleteBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onDeleteClick(getAdapterPosition());
-                }
-            });
+            deleteBtn.setOnClickListener(view -> listener.onDeleteClick(getAdapterPosition()));
 
         }
     }

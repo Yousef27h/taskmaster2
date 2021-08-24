@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,13 +14,11 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,19 +30,20 @@ import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.AWSDataStorePlugin;
 import com.amplifyframework.datastore.generated.model.Task;
-import com.amplifyframework.datastore.generated.model.Team;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private  ArrayList<Task> tasks = new ArrayList<>();
+    private final ArrayList<Task> tasks = new ArrayList<>();
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
     private Handler handler;
     private SharedPreferences sharedPreferences;
     private String teamName = "Team1";
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,24 +81,19 @@ public class MainActivity extends AppCompatActivity {
 //        );
 
         handler = new Handler(Looper.getMainLooper(),
-                new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(@NonNull Message message) {
-                        recyclerView.getAdapter().notifyDataSetChanged();
-                        return false;
-                    }
+                message -> {
+                    Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+                    return false;
                 });
 
         Button addActivityBtn = findViewById(R.id.addActivityBtn);
-        addActivityBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,AddTaskActivity.class);
-                startActivity(intent);
-            }
+        addActivityBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this,AddTaskActivity.class);
+            startActivity(intent);
         });
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
@@ -145,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("taskBody", tasks.get(position).getBody());
                 intent.putExtra("taskState", tasks.get(position).getState());
                 startActivity(intent);
-                Toast toast =  Toast.makeText(getApplicationContext(),"Item Clicked!", Toast.LENGTH_SHORT);
             }
 
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDeleteClick(int position) {
                 Task task = tasks.remove(position);
@@ -163,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 );
 
                 taskAdapter.notifyDataSetChanged();
-                Toast toast =  Toast.makeText(getApplicationContext(),"Item Deleted!", Toast.LENGTH_SHORT);
+                Toast.makeText(getApplicationContext(), "Item Deleted!", Toast.LENGTH_SHORT).show();
             }
         });
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -181,14 +176,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.settingsItem:
-                Intent intent =  new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.settingsItem) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     public boolean isNetworkAvailable(Context context) {

@@ -34,3 +34,4 @@ Daily change log:
 
 23th of August, 2021: Add new model "Team" and add relationship between "Team" and "Task".
 
+24th of August, 2021: Ensured that my application follows Google’s guidelines, and Built an APK for my application (you can find it at apk folder)
