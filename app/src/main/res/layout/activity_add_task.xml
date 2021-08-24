@@ -10,7 +10,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="32dp"
         android:text="Add Task"
         android:textSize="50dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +22,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="48dp"
         android:text="Task Name"
         android:textSize="25dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,11 +34,11 @@
         android:id="@+id/inputTaskTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:ems="10"
+        android:hint="Add a task name"
         android:inputType="textPersonName"
-        android:text="Add a task name"
-
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +48,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="28dp"
         android:text="Task Description"
         android:textSize="25dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,10 +60,11 @@
         android:id="@+id/inputTaskDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:ems="10"
+        android:hint="Add a task description"
         android:inputType="textPersonName"
-        android:text="Add a task description"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +74,7 @@
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="252dp"
+        android:layout_marginTop="220dp"
         android:background="@color/red"
         android:text="@string/add"
         app:layout_constraintEnd_toEndOf="parent"
@@ -85,61 +86,33 @@
         android:id="@+id/spinner"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="@+id/inputTaskDescription"
         app:layout_constraintHorizontal_bias="0.2"
         app:layout_constraintStart_toStartOf="@+id/inputTaskDescription"
-        app:layout_constraintTop_toBottomOf="@+id/inputTaskDescription" />
-
-    <!--    <RadioGroup-->
-<!--        android:id="@+id/radioGroup"-->
-<!--        android:layout_width="198dp"-->
-<!--        android:layout_height="145dp"-->
-<!--        android:layout_marginTop="70dp"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/saveBtn"-->
-<!--        app:layout_constraintEnd_toEndOf="@+id/spinner"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/spinner"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/spinner">-->
-
-<!--        <RadioButton-->
-<!--            android:id="@+id/radioButton"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:checked="true"-->
-<!--            android:text="@string/radio_team1" />-->
-
-<!--        <RadioButton-->
-<!--            android:id="@+id/radioButton2"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/radio_team2" />-->
-
-<!--        <RadioButton-->
-<!--            android:id="@+id/radioButton4"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/radio_team3" />-->
-
-<!--    </RadioGroup>-->
+        app:layout_constraintTop_toBottomOf="@+id/inputTaskDescription"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <Spinner
         android:id="@+id/teamSpinner"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="10dp"
+        android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="@+id/inputTaskDescription"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/inputTaskDescription"
-        app:layout_constraintTop_toBottomOf="@+id/Teams" />
+        app:layout_constraintTop_toBottomOf="@+id/Teams"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <TextView
         android:id="@+id/Teams"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="28dp"
         android:text="@string/choose_a_team"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/radioGroup"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.523"
         app:layout_constraintStart_toStartOf="parent"

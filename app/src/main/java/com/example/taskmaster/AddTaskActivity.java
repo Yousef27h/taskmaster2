@@ -28,13 +28,15 @@ import com.amplifyframework.datastore.generated.model.Task;
 import com.amplifyframework.datastore.generated.model.Team;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AddTaskActivity extends AppCompatActivity {
     private Spinner spinner;
     private Spinner teamSpinner;
     private final String[] state = new String[]{"new", "assigned", "in progress", "complete"};
-    private final List<Team> teams =  new ArrayList<>();
+    private Map<String, Team> teams =  new HashMap<>();
 //    private RecyclerView recyclerView;
 
 
@@ -46,6 +48,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
 
         Button saveBtn = findViewById(R.id.saveBtn);
+
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item,
                 state);
@@ -70,19 +73,24 @@ public class AddTaskActivity extends AppCompatActivity {
 
             switch(teamSpinner.getSelectedItem().toString()){
                 case "Team 1":
-                    Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get(0)).build();
+                    Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 1")).build();
                     saveToAPI(task);
                     saveToDatastore(task);
+                    Log.i("add to team ", "onCreate: "+task.getTeam().getName());
+
                     break;
                 case "Team 2":
-                    Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get(1)).build();
+                    Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 2")).build();
                     saveToAPI(task2);
                     saveToDatastore(task2);
+                    Log.i("add to team ", "onCreate: "+task2.getTeam().getName());
                     break;
                 case "Team 3":
-                    Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get(2)).build();
+                    Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 3")).build();
                     saveToAPI(task3);
                     saveToDatastore(task3);
+                    Log.i("add to team ", "onCreate: "+task3.getTeam().getName());
+
                     break;
             }
 
@@ -96,8 +104,17 @@ public class AddTaskActivity extends AppCompatActivity {
                 ModelQuery.list(Team.class),
                 response -> {
                     for (Team team : response.getData()) {
-                        this.teams.add(team);
-                        Log.i("MyAmplifyApp", team.getName());
+                        switch(team.getName()) {
+                            case "Team1":
+                                this.teams.put("Team 1", team);
+                                break;
+                            case "Team2":
+                                this.teams.put("Team 2", team);
+                                break;
+                            case "Team3":
+                                this.teams.put("Team 3", team);
+                                break;
+                        }
                     }
                 },
                 error -> Log.e("MyAmplifyApp", "Query failure", error)
