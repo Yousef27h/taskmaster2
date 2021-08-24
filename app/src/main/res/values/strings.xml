@@ -7,4 +7,5 @@
     <string name="radio_team2">2</string>
     <string name="radio_team3">3</string>
     <string name="choose_a_team">Choose a Team</string>
+    <string name="create_a_new_one"><u>Create a new one</u></string>
 </resources>

@@ -2,6 +2,14 @@
 
 An android application that helps users to manage their tasks and edit them. Java were used to create this app using android studio.
 
+Sign Up Page:
+
+![Sign Up](./signUpPage.JPG)
+
+Sign In Page:
+
+![Sign In](./signInPage.JPG)
+
 Home Page:
 
 ![Home page](./homePage.JPG)
@@ -17,6 +25,7 @@ Add Task Page:
 Task Details Page:
 
 ![Task Details page](./taskDetailsPage.JPG)
+
 
 Daily change log:
 
@@ -35,3 +44,5 @@ Daily change log:
 23th of August, 2021: Add new model "Team" and add relationship between "Team" and "Task".
 
 24th of August, 2021: Ensured that my application follows Google’s guidelines, and Built an APK for my application (you can find it at apk folder)
+
+24th of August, 2021: Added in user login and sign up flows to my application, using Cognito’s pre-built UI as appropriate. 
