@@ -3,7 +3,9 @@ package com.example.taskmaster;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -15,9 +17,13 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.auth.options.AuthSignUpOptions;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.AWSDataStorePlugin;
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 
 public class SignUpActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
             Amplify.addPlugin(new AWSDataStorePlugin());
             Amplify.addPlugin(new AWSApiPlugin());
             Amplify.addPlugin(new AWSCognitoAuthPlugin());
+            Amplify.addPlugin(new AWSS3StoragePlugin());
             Amplify.configure(getApplicationContext());
 
             Log.i("Tutorial", "Initialized Amplify");
@@ -82,6 +89,7 @@ public class SignUpActivity extends AppCompatActivity {
         AuthSignUpOptions options = AuthSignUpOptions.builder()
                 .userAttribute(AuthUserAttributeKey.email(), email)
                 .build();
+
 
         Amplify.Auth.signUp(username,
                 password,

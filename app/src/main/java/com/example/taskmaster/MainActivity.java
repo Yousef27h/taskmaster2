@@ -1,17 +1,28 @@
 package com.example.taskmaster;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileUtils;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -35,11 +46,23 @@ import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.AWSDataStorePlugin;
 import com.amplifyframework.datastore.generated.model.Task;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "UploadFileMain";
     private ArrayList<Task> tasks = new ArrayList<>();
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
@@ -55,44 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-//        try {
-//            Amplify.addPlugin(new AWSDataStorePlugin());
-//            Amplify.addPlugin(new AWSApiPlugin());
-//            Amplify.addPlugin(new AWSCognitoAuthPlugin());
-//            Amplify.configure(getApplicationContext());
-//
-//            Log.i("Tutorial", "Initialized Amplify");
-//        } catch (AmplifyException e) {
-//            Log.e("Tutorial", "Could not initialize Amplify", e);
-//        }
 
-        // check authenticated
-
-        // sign up
-//        AuthSignUpOptions options = AuthSignUpOptions.builder()
-//                .userAttribute(AuthUserAttributeKey.email(), "yousef_haimour@yahoo.com")
-//                .build();
-//
-//        Amplify.Auth.signUp("username", "Password123", options,
-//                result -> Log.i("AuthQuickStart", "Result: " + result.toString()),
-//                error -> Log.e("AuthQuickStart", "Sign up failed", error)
-//        );
-
-        // confirm sign up
-//        Amplify.Auth.confirmSignUp(
-//                "username",
-//                "204751",
-//                result -> Log.i("AuthQuickstart", result.isSignUpComplete() ? "Confirm signUp succeeded" : "Confirm sign up not complete"),
-//                error -> Log.e("AuthQuickstart", error.toString())
-//        );
-
-        // sign in
-//        Amplify.Auth.signIn(
-//                "username",
-//                "Password123",
-//                result -> Log.i("AuthQuickstart", result.isSignInComplete() ? "Sign in succeeded" : "Sign in not complete"),
-//                error -> Log.e("AuthQuickstart", error.toString())
-//        );
 
 //        Team team = Team.builder().name("Team1").build();
 //        Team team2 = Team.builder().name("Team2").build();
@@ -112,6 +98,16 @@ public class MainActivity extends AppCompatActivity {
 //        );
 
 
+
+
+        findViewById(R.id.uploadBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getFileFromDevice();
+//                uploadFile();
+                Log.i(">>>>>>>>>", "onCreate: "+getApplicationContext().getFilesDir());
+            }
+        });
         handler = new Handler(Looper.getMainLooper(),
                 message -> {
                     Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
@@ -139,6 +135,56 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void getFileFromDevice() {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent = Intent.createChooser(intent, "Choose a File");
+        activityResultLauncher.launch(intent);
+    }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+        @RequiresApi(api = Build.VERSION_CODES.Q)
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == Activity.RESULT_OK){
+                Intent data = result.getData();
+                Uri uri = data.getData();
+                String src = uri.getPath();
+
+                TextView textView = findViewById(R.id.textView14);
+                textView.setText(src);
+
+                File source = new File(src);
+                String fileName = uri.getLastPathSegment();
+                File destination = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CustomFolder"+fileName);
+
+                File uploadFile = new File(getApplicationContext().getFilesDir(), "uploadFile");
+
+                try {
+//                    InputStream in = new FileInputStream(source);
+//                    OutputStream out = new FileOutputStream(destination);
+//                    FileUtils.copy(in, out);
+                    InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                    FileUtils.copy(inputStream, new FileOutputStream(uploadFile));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Amplify.Storage.uploadFile(
+                        "test",
+                        uploadFile,
+                        success -> {
+                            Log.i(TAG, "uploadFileToS3: succeeded " + success.getKey());
+                        },
+                        error -> {
+                            Log.e(TAG, "uploadFileToS3: failed " + error.toString());
+                        }
+                );
+            }
+        }
+    });
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
@@ -148,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i("team", "onResume: " + teamName);
         TextView username = findViewById(R.id.usernameTitle);
-        username.setText(sharedPreferences.getString("username","User")+" Tasks");
+        username.setText(sharedPreferences.getString("name","User")+" Tasks");
 
         if (isNetworkAvailable(getApplicationContext()) && tasks.isEmpty()){
             Amplify.API.query(ModelQuery.list(Task.class),

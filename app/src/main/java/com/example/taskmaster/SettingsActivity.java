@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amplifyframework.auth.AuthUser;
 import com.amplifyframework.core.Amplify;
 
 
@@ -27,6 +28,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor preferenceEditor = sharedPreferences.edit();
+
+        TextView username = findViewById(R.id.username);
+        AuthUser authUser = Amplify.Auth.getCurrentUser();
+        username.setText(authUser.getUsername());
 
         spinner = findViewById(R.id.chooseTeamSpinner);
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this,
@@ -46,9 +51,9 @@ public class SettingsActivity extends AppCompatActivity {
 //        );
 
         findViewById(R.id.saveUserBtn).setOnClickListener(v -> {
-            EditText username = findViewById(R.id.editTextPersonName);
-            preferenceEditor.putString("username", username.getText().toString());
-//            preferenceEditor.apply();
+            EditText name = findViewById(R.id.editTextPersonName);
+            preferenceEditor.putString("name", name.getText().toString());
+
 
             switch(spinner.getSelectedItem().toString()){
                 case "Team 1":

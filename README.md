@@ -20,7 +20,7 @@ Settings Page:
 
 Add Task Page:
 
-![Add Task page](./taskDetailsPage.JPG)
+![Add Task page](./addTaskPage.JPG)
 
 Task Details Page:
 
