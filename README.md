@@ -46,3 +46,6 @@ Daily change log:
 24th of August, 2021: Ensured that my application follows Google’s guidelines, and Built an APK for my application (you can find it at apk folder)
 
 24th of August, 2021: Added in user login and sign up flows to my application, using Cognito’s pre-built UI as appropriate. 
+
+26th of August, 2021: Added the ability for our app to upload files and store it on AWS S3 and assign it to specific task, also added the ability to view the file that has been uploaded when click on a task in task details page.
+

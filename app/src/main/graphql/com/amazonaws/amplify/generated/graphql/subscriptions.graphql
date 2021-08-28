@@ -50,6 +50,7 @@ subscription OnCreateTask {
     teamID
     title
     body
+    fileName
     state
     team {
       id
@@ -73,6 +74,7 @@ subscription OnUpdateTask {
     teamID
     title
     body
+    fileName
     state
     team {
       id
@@ -96,6 +98,7 @@ subscription OnDeleteTask {
     teamID
     title
     body
+    fileName
     state
     team {
       id

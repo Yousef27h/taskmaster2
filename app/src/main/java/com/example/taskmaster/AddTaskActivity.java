@@ -1,17 +1,30 @@
 package com.example.taskmaster;
 
 //import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 //import androidx.recyclerview.widget.RecyclerView;
 
 //import android.content.Context;
 //import android.net.ConnectivityManager;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 //import android.os.Handler;
 //import android.os.Looper;
 //import android.os.Message;
+import android.os.Environment;
+import android.os.FileUtils;
 import android.util.Log;
 //import android.view.View;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,7 +40,13 @@ import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.generated.model.Task;
 import com.amplifyframework.datastore.generated.model.Team;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +56,10 @@ public class AddTaskActivity extends AppCompatActivity {
     private Spinner teamSpinner;
     private final String[] state = new String[]{"new", "assigned", "in progress", "complete"};
     private Map<String, Team> teams =  new HashMap<>();
-//    private RecyclerView recyclerView;
+    private static final String TAG = "UploadFileMain";
+    private String fileType;
+    private String fileName;
+    private File uploadFile;
 
 
     @Override
@@ -73,20 +95,23 @@ public class AddTaskActivity extends AppCompatActivity {
 
             switch(teamSpinner.getSelectedItem().toString()){
                 case "Team 1":
-                    Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 1")).build();
+                    uploadFile();
+                    Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 1")).fileName(fileName).build();
                     saveToAPI(task);
                     saveToDatastore(task);
                     Log.i("add to team ", "onCreate: "+task.getTeam().getName());
 
                     break;
                 case "Team 2":
-                    Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 2")).build();
+                    uploadFile();
+                    Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 2")).fileName(fileName).build();
                     saveToAPI(task2);
                     saveToDatastore(task2);
                     Log.i("add to team ", "onCreate: "+task2.getTeam().getName());
                     break;
                 case "Team 3":
-                    Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 3")).build();
+                    uploadFile();
+                    Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 3")).fileName(fileName).build();
                     saveToAPI(task3);
                     saveToDatastore(task3);
                     Log.i("add to team ", "onCreate: "+task3.getTeam().getName());
@@ -96,6 +121,10 @@ public class AddTaskActivity extends AppCompatActivity {
 
                 Toast toast = Toast.makeText(getApplicationContext(),"Submitted!", Toast.LENGTH_SHORT);
                 toast.show();
+        });
+
+        findViewById(R.id.uploadBtn).setOnClickListener(view -> {
+            getFileFromDevice();
         });
     }
 
@@ -134,5 +163,62 @@ public class AddTaskActivity extends AppCompatActivity {
                 error -> Log.e("Tutorial", "Could not save item to DataStore", error)
         );
     }
+
+    private void uploadFile(){
+        Amplify.Storage.uploadFile(
+                fileName,
+                uploadFile,
+                success -> {
+                    Log.i(TAG, "uploadFileToS3: succeeded " + success.getKey());
+                },
+                error -> {
+                    Log.e(TAG, "uploadFileToS3: failed " + error.toString());
+                }
+        );
+    }
+
+    private void getFileFromDevice() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent = Intent.createChooser(intent, "Choose a File");
+        activityResultLauncher.launch(intent);
+    }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @SuppressLint("SimpleDateFormat")
+                @RequiresApi(api = Build.VERSION_CODES.Q)
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK){
+                        Intent data = result.getData();
+                        Uri uri = data.getData();
+                        String src = uri.getPath();
+
+                        fileType = getContentResolver().getType(uri);
+                        fileName = new SimpleDateFormat("yyMMddHHmmssZ").format(new Date())+"." + fileType.split("/")[1];
+//                        Log.i("URIData", "onActivityResult: "+ uri);
+//                        Log.i("fileTypeData", "onActivityResult: "+ fileType);
+//                        Log.i("extension", "onActivityResult: "+ src);
+
+                        File source = new File(src);
+                        String file = uri.getLastPathSegment();
+                        File destination = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CustomFolder"+file);
+                        uploadFile = new File(getApplicationContext().getFilesDir(), "uploadFile");
+
+                        try {
+//                    InputStream in = new FileInputStream(source);
+//                    OutputStream out = new FileOutputStream(destination);
+//                    FileUtils.copy(in, out);
+                            InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                            FileUtils.copy(inputStream, new FileOutputStream(uploadFile));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            });
 
 }

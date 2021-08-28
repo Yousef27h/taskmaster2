@@ -62,7 +62,7 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "UploadFileMain";
+
     private ArrayList<Task> tasks = new ArrayList<>();
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
@@ -100,14 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        findViewById(R.id.uploadBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFileFromDevice();
-//                uploadFile();
-                Log.i(">>>>>>>>>", "onCreate: "+getApplicationContext().getFilesDir());
-            }
-        });
+
         handler = new Handler(Looper.getMainLooper(),
                 message -> {
                     Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
@@ -134,56 +127,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void getFileFromDevice() {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent = Intent.createChooser(intent, "Choose a File");
-        activityResultLauncher.launch(intent);
-    }
-
-    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-        @RequiresApi(api = Build.VERSION_CODES.Q)
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode() == Activity.RESULT_OK){
-                Intent data = result.getData();
-                Uri uri = data.getData();
-                String src = uri.getPath();
-
-                TextView textView = findViewById(R.id.textView14);
-                textView.setText(src);
-
-                File source = new File(src);
-                String fileName = uri.getLastPathSegment();
-                File destination = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CustomFolder"+fileName);
-
-                File uploadFile = new File(getApplicationContext().getFilesDir(), "uploadFile");
-
-                try {
-//                    InputStream in = new FileInputStream(source);
-//                    OutputStream out = new FileOutputStream(destination);
-//                    FileUtils.copy(in, out);
-                    InputStream inputStream = getContentResolver().openInputStream(data.getData());
-                    FileUtils.copy(inputStream, new FileOutputStream(uploadFile));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Amplify.Storage.uploadFile(
-                        "test",
-                        uploadFile,
-                        success -> {
-                            Log.i(TAG, "uploadFileToS3: succeeded " + success.getKey());
-                        },
-                        error -> {
-                            Log.e(TAG, "uploadFileToS3: failed " + error.toString());
-                        }
-                );
-            }
-        }
-    });
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -243,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("taskName", teamTasks.get(position).getTitle());
                 intent.putExtra("taskBody", teamTasks.get(position).getBody());
                 intent.putExtra("taskState", teamTasks.get(position).getState());
+                intent.putExtra("taskFileName", teamTasks.get(position).getFileName());
                 startActivity(intent);
             }
 
