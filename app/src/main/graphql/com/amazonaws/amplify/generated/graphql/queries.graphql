@@ -75,6 +75,7 @@ query SyncTasks(
       teamID
       title
       body
+      fileName
       state
       _version
       _deleted
@@ -92,6 +93,7 @@ query GetTask($id: ID!) {
     teamID
     title
     body
+    fileName
     state
     team {
       id
@@ -120,6 +122,7 @@ query ListTasks(
       teamID
       title
       body
+      fileName
       state
       _version
       _deleted

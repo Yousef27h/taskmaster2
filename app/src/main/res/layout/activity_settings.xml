@@ -24,7 +24,7 @@
         android:layout_marginBottom="28dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="username"
+        android:text="User"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/chooseTeamSpinner"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="Username"
+        android:text="Name"
         android:textSize="20sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/editTextPersonName"
         app:layout_constraintStart_toStartOf="parent" />
@@ -84,25 +84,27 @@
         app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="@+id/usernameTitle" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/textView13"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="TextView"-->
-<!--        android:textSize="20sp"-->
-<!--        app:layout_constraintEnd_toStartOf="@+id/textView14"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        tools:layout_editor_absoluteY="214dp" />-->
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="45dp"
+        android:text="Username"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextPersonName"
+        app:layout_constraintEnd_toEndOf="@+id/usernameTitle"
+        app:layout_constraintStart_toStartOf="@+id/usernameTitle" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/textView14"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginEnd="184dp"-->
-<!--        android:text="TextView"-->
-<!--        android:textSize="20sp"-->
-<!--        app:layout_constraintBaseline_toBaselineOf="@+id/textView13"-->
-<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="20sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textView13"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.128"
+        app:layout_constraintStart_toEndOf="@+id/textView13" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
