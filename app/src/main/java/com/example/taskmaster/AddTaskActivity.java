@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 //import com.amplifyframework.AmplifyException;
@@ -50,6 +53,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AddTaskActivity extends AppCompatActivity {
     private Spinner spinner;
@@ -60,12 +64,15 @@ public class AddTaskActivity extends AppCompatActivity {
     private String fileType;
     private String fileName;
     private File uploadFile;
-
+    EditText taskTitleInput;
+    EditText taskDescriptionInput;
+    String imgSrc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
+
 
 
 
@@ -88,10 +95,12 @@ public class AddTaskActivity extends AppCompatActivity {
 
         getTeams();
 
+        taskTitleInput = findViewById(R.id.inputTaskTitle);
+        taskDescriptionInput = findViewById(R.id.inputTaskDescription);
+
         saveBtn.setOnClickListener(view -> {
 
-            EditText taskTitleInput = findViewById(R.id.inputTaskTitle);
-            EditText taskDescriptionInput = findViewById(R.id.inputTaskDescription);
+
 
             switch(teamSpinner.getSelectedItem().toString()){
                 case "Team 1":
@@ -99,7 +108,7 @@ public class AddTaskActivity extends AppCompatActivity {
                     Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 1")).fileName(fileName).build();
                     saveToAPI(task);
                     saveToDatastore(task);
-                    Log.i("add to team ", "onCreate: "+task.getTeam().getName());
+//                    Log.i("add to team ", "onCreate: "+task.getTeam().getName());
 
                     break;
                 case "Team 2":
@@ -107,14 +116,15 @@ public class AddTaskActivity extends AppCompatActivity {
                     Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 2")).fileName(fileName).build();
                     saveToAPI(task2);
                     saveToDatastore(task2);
-                    Log.i("add to team ", "onCreate: "+task2.getTeam().getName());
+//                    Log.i("add to team ", "onCreate: "+task2.getTeam().getName());
+
                     break;
                 case "Team 3":
                     uploadFile();
                     Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 3")).fileName(fileName).build();
                     saveToAPI(task3);
                     saveToDatastore(task3);
-                    Log.i("add to team ", "onCreate: "+task3.getTeam().getName());
+//                    Log.i("add to team ", "onCreate: "+task3.getTeam().getName());
 
                     break;
             }
@@ -126,6 +136,53 @@ public class AddTaskActivity extends AppCompatActivity {
         findViewById(R.id.uploadBtn).setOnClickListener(view -> {
             getFileFromDevice();
         });
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if (extras != null){
+
+
+            Log.i("INTENT in RESUME", "onResume: "+intent.getData());
+
+            if (intent.getType().equals("text/plain")){
+                taskTitleInput.setText(extras.get("android.intent.extra.SUBJECT").toString());
+                taskDescriptionInput.setText(extras.get("android.intent.extra.TEXT").toString());
+            }else if (intent.getType().contains("image/")){
+
+                Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                String src = uri.getPath();
+
+                imgSrc =src;
+
+                fileType = getContentResolver().getType(uri);
+                fileName = new SimpleDateFormat("yyMMddHHmmssZ").format(new Date())+"." + fileType.split("/")[1];
+
+                File source = new File(src);
+                String file = uri.getLastPathSegment();
+                File destination = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/CustomFolder"+file);
+                uploadFile = new File(getApplicationContext().getFilesDir(), "uploadFile");
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                    FileUtils.copy(inputStream, new FileOutputStream(uploadFile));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+//                uploadFile();
+            }
+        }
+
+        if (imgSrc != null){
+            TextView imgSrc = findViewById(R.id.imgSrc);
+            imgSrc.setText(this.imgSrc);
+            imgSrc.setVisibility(View.VISIBLE);
+        }
     }
 
     private void getTeams() {
@@ -164,6 +221,7 @@ public class AddTaskActivity extends AppCompatActivity {
         );
     }
 
+
     private void uploadFile(){
         Amplify.Storage.uploadFile(
                 fileName,
@@ -196,6 +254,8 @@ public class AddTaskActivity extends AppCompatActivity {
                         Uri uri = data.getData();
                         String src = uri.getPath();
 
+                        imgSrc = src;
+
                         fileType = getContentResolver().getType(uri);
                         fileName = new SimpleDateFormat("yyMMddHHmmssZ").format(new Date())+"." + fileType.split("/")[1];
 //                        Log.i("URIData", "onActivityResult: "+ uri);
@@ -216,6 +276,7 @@ public class AddTaskActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
 
                     }
                 }
