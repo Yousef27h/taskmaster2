@@ -52,3 +52,5 @@ Daily change log:
 29th of August, 2021: Added intent filters to my app, which enables the user to share text files and images to my app, which in turn navigates him to "Add Task" page with file he shared filled up in form.
 
 30th of August, 2021: Added Google location service to get current location when adding new task, and display the location when task was been added to "Task Details" page.
+
+31th of August, 2021: added session analytics to my application, Using Google analytics service.
