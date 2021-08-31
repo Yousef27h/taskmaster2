@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -25,6 +26,8 @@ import android.widget.TextView;
 
 import com.amplifyframework.core.Amplify;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,6 +41,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
     private URL url;
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,13 +52,15 @@ public class TaskDetailsActivity extends AppCompatActivity {
         TextView textTitle = findViewById(R.id.taskName);
         TextView textState = findViewById(R.id.taskState);
         TextView textDescription = findViewById(R.id.taskBody);
+        TextView locationText = findViewById(R.id.locationText);
 
         fileName = intent.getExtras().getString("taskFileName");
 
         Log.i("FIlE_NAME", "onCreate: "+fileName);
         textTitle.setText(intent.getExtras().getString("taskName"));
-        textState.setText( intent.getExtras().getString("taskState"));
+        textState.setText( "("+intent.getExtras().getString("taskState")+")");
         textDescription.setText( intent.getExtras().getString("taskBody"));
+        locationText.setText("Lat: "+intent.getExtras().getString("taskLat")+", Long: "+intent.getExtras().getString("taskLong"));
 
         Amplify.Storage.getUrl(
                 fileName,

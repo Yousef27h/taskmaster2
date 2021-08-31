@@ -50,3 +50,5 @@ Daily change log:
 26th of August, 2021: Added the ability for our app to upload files and store it on AWS S3 and assign it to specific task, also added the ability to view the file that has been uploaded when click on a task in task details page.
 
 29th of August, 2021: Added intent filters to my app, which enables the user to share text files and images to my app, which in turn navigates him to "Add Task" page with file he shared filled up in form.
+
+30th of August, 2021: Added Google location service to get current location when adding new task, and display the location when task was been added to "Task Details" page.

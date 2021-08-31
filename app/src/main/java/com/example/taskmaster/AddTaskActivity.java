@@ -1,31 +1,30 @@
 package com.example.taskmaster;
 
-//import androidx.annotation.NonNull;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-//import androidx.recyclerview.widget.RecyclerView;
+import androidx.core.app.ActivityCompat;
 
-//import android.content.Context;
-//import android.net.ConnectivityManager;
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-//import android.os.Handler;
-//import android.os.Looper;
-//import android.os.Message;
 import android.os.Environment;
 import android.os.FileUtils;
+import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
-//import android.view.View;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -34,14 +33,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.amplifyframework.AmplifyException;
-//import com.amplifyframework.api.aws.AWSApiPlugin;
 import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.api.graphql.model.ModelQuery;
 import com.amplifyframework.core.Amplify;
-//import com.amplifyframework.datastore.AWSDataStorePlugin;
 import com.amplifyframework.datastore.generated.model.Task;
 import com.amplifyframework.datastore.generated.model.Team;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,9 +53,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class AddTaskActivity extends AppCompatActivity {
     private Spinner spinner;
@@ -67,13 +67,17 @@ public class AddTaskActivity extends AppCompatActivity {
     EditText taskTitleInput;
     EditText taskDescriptionInput;
     String imgSrc;
+    FusedLocationProviderClient mFusedLocationClient;
+    int PERMISSION_ID = 44;
+    String longitude;
+    String latitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
 
-
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
         Button saveBtn = findViewById(R.id.saveBtn);
@@ -100,12 +104,14 @@ public class AddTaskActivity extends AppCompatActivity {
 
         saveBtn.setOnClickListener(view -> {
 
-
+            ArrayList<String> location = new ArrayList<>();
+            location.add(longitude);
+            location.add(latitude);
 
             switch(teamSpinner.getSelectedItem().toString()){
                 case "Team 1":
                     uploadFile();
-                    Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 1")).fileName(fileName).build();
+                    Task task = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 1")).fileName(fileName).location(location).build();
                     saveToAPI(task);
                     saveToDatastore(task);
 //                    Log.i("add to team ", "onCreate: "+task.getTeam().getName());
@@ -113,7 +119,7 @@ public class AddTaskActivity extends AppCompatActivity {
                     break;
                 case "Team 2":
                     uploadFile();
-                    Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 2")).fileName(fileName).build();
+                    Task task2 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 2")).fileName(fileName).location(location).build();
                     saveToAPI(task2);
                     saveToDatastore(task2);
 //                    Log.i("add to team ", "onCreate: "+task2.getTeam().getName());
@@ -121,7 +127,7 @@ public class AddTaskActivity extends AppCompatActivity {
                     break;
                 case "Team 3":
                     uploadFile();
-                    Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 3")).fileName(fileName).build();
+                    Task task3 = Task.builder().title(taskTitleInput.getText().toString()).body(taskDescriptionInput.getText().toString()).state(spinner.getSelectedItem().toString()).team(teams.get("Team 3")).fileName(fileName).location(location).build();
                     saveToAPI(task3);
                     saveToDatastore(task3);
 //                    Log.i("add to team ", "onCreate: "+task3.getTeam().getName());
@@ -136,6 +142,8 @@ public class AddTaskActivity extends AppCompatActivity {
         findViewById(R.id.uploadBtn).setOnClickListener(view -> {
             getFileFromDevice();
         });
+
+        getLastLocation();
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -182,6 +190,10 @@ public class AddTaskActivity extends AppCompatActivity {
             TextView imgSrc = findViewById(R.id.imgSrc);
             imgSrc.setText(this.imgSrc);
             imgSrc.setVisibility(View.VISIBLE);
+        }
+
+        if (checkPermissions()) {
+            getLastLocation();
         }
     }
 
@@ -282,4 +294,96 @@ public class AddTaskActivity extends AppCompatActivity {
                 }
             });
 
+    @SuppressLint("MissingPermission")
+    private void getLastLocation() {
+        // check if permissions are given
+        if (checkPermissions()) {
+
+            // check if location is enabled
+            if (isLocationEnabled()) {
+
+                // getting last
+                // location from
+                // FusedLocationClient
+                // object
+                mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Location> task) {
+                        Location location = task.getResult();
+                        if (location == null) {
+                            requestNewLocationData();
+                        } else {
+                            longitude = String.valueOf(location.getLongitude());
+                            latitude = String.valueOf(location.getLatitude());
+
+                        }
+                    }
+                    
+                });
+            } else {
+                Toast.makeText(this, "Please turn on" + " your location...", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        } else {
+            // if permissions aren't available,
+            // request for permissions
+            requestPermissions();
+        }
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_ID);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void requestNewLocationData() {
+        // Initializing LocationRequest
+        // object with appropriate methods
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
+
+        // setting LocationRequest
+        // on FusedLocationClient
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+
+    }
+    private LocationCallback mLocationCallback = new LocationCallback() {
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Location mLastLocation = locationResult.getLastLocation();
+                longitude = String.valueOf(mLastLocation.getLongitude());
+                latitude = String.valueOf(mLastLocation.getLatitude());
+        }
+    };
+
+    private boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+    }
+
+    private boolean checkPermissions() {
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            }
+        }
+    }
 }

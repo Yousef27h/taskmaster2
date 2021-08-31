@@ -11,6 +11,7 @@ type Task @model
   title: String!
   body: String!
   fileName: String
+  location: [String]
   state: String
   team: Team @connection (fields:["teamID"])
 }
