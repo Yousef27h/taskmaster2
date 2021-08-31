@@ -24,7 +24,7 @@ Add Task Page:
 
 Task Details Page:
 
-![Task Details page](./taskDetailsPage.JPG)
+![Task Details page](taskDetails.JPG)
 
 
 Daily change log:
