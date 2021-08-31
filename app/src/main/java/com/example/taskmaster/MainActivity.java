@@ -187,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("taskBody", teamTasks.get(position).getBody());
                 intent.putExtra("taskState", teamTasks.get(position).getState());
                 intent.putExtra("taskFileName", teamTasks.get(position).getFileName());
+                intent.putExtra("taskLong", teamTasks.get(position).getLocation().get(0));
+                intent.putExtra("taskLat", teamTasks.get(position).getLocation().get(1));
                 startActivity(intent);
             }
 
@@ -232,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("MissingPermission")
     public boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();

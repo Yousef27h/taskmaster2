@@ -51,6 +51,7 @@ subscription OnCreateTask {
     title
     body
     fileName
+    location
     state
     team {
       id
@@ -75,6 +76,7 @@ subscription OnUpdateTask {
     title
     body
     fileName
+    location
     state
     team {
       id
@@ -99,6 +101,7 @@ subscription OnDeleteTask {
     title
     body
     fileName
+    location
     state
     team {
       id

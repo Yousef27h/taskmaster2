@@ -63,6 +63,7 @@ mutation CreateTask(
     title
     body
     fileName
+    location
     state
     team {
       id
@@ -90,6 +91,7 @@ mutation UpdateTask(
     title
     body
     fileName
+    location
     state
     team {
       id
@@ -117,6 +119,7 @@ mutation DeleteTask(
     title
     body
     fileName
+    location
     state
     team {
       id
